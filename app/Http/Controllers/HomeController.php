@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constituency;
+use App\Events\ResultsPublished;
 use App\ParliamentryCandidate;
 use App\Party;
 use App\PollingStation;
@@ -12,6 +13,7 @@ use App\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
@@ -76,6 +78,7 @@ class HomeController extends Controller
         return view('recordparliamentary',$data);
 
     }
+
     public function recordpresidential($id){
         $data['candidates'] = DB::select("select * from presidential_candidate ");
         $data['polling_stations'] = DB::select("select * from polling_stations where constituency_id = '$id' order by name ");
@@ -132,10 +135,24 @@ class HomeController extends Controller
             'rejected'=>$request->rejected ?? 0 ,
             'type'=>$request->type
         ]);
-
         $vote->save();
 
+
         if ($vote){
+            if ($request->type==='MP'){
+            $data['type']='MP';
+            $data['candidate_id']=$request->candidate_id;
+            $data['constituency_id']=$station->constituency_id;
+             broadcast(new ResultsPublished($data));
+            }else{
+
+                $data['type']='President';
+                $data['candidate_id']=$request->candidate_id;
+                $data['constituency_id']=$station->constituency_id;
+                broadcast(new ResultsPublished($data));
+
+            }
+
             return redirect()->back()->with('success',$request->result." votes recorded for ".$candidate->name." at ".$station->name);
         }else{
             return redirect()->back()->with('error',"Something went wrong could save results");
@@ -216,10 +233,6 @@ class HomeController extends Controller
                 return redirect()->back()->with('error','Constituency with name '.$request->name." already exists");
 
             }
-
-
-
-
 
     }
 
@@ -309,6 +322,42 @@ class HomeController extends Controller
         }
 
     }
+
+
+    public function createpaliarmentarycandidate(){
+
+        if (User::isAdmin()){
+        $constituencies = Constituency::all();
+        }else{
+
+            $constituencies = Constituency::where('id',auth()->user()->constituency_id)->get();
+
+        }
+
+        $data['parties'] = Party::all();
+        $data['constituencies'] = $constituencies;
+
+        return view('parliamentarycandidate.create',$data);
+
+
+    }
+
+    public function saveparliamentarycandidate(Request $request){
+
+
+        $candidate = new ParliamentryCandidate([
+            'name'=>$request->name,
+            'constituency_id'=>$request->constituency_id,
+            'party_id'=>$request->party_id,
+            'photo'=> $request->hasFile('photo') ?  Storage::url($request->file('photo')->store('public/candidate')) : '/img/photo.png'
+        ]);
+        $candidate->save();
+
+            return redirect()->back()->with('success',"Candidate ".$candidate->name." registered successfully");
+
+
+    }
+
 
 
 

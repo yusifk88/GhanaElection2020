@@ -104,7 +104,7 @@
                                     <h2 class="font-weight-bold">{{sum_votes(constituency.polling_stations)}}</h2>
                                     <small>Total Votes</small>
                                 </center>
-                                <apexchart type="bar" height="350" :options="make_options(constituency.polling_stations)" :series="makeSeries(constituency.polling_stations)"></apexchart>
+                                <apexchart type="bar" height="3500" :options="make_options(constituency.polling_stations)" :series="makeSeries(constituency.polling_stations)"></apexchart>
 
 
                         </v-card>
@@ -115,6 +115,18 @@
 
 
             </v-card-text>
+
+
+            <v-snackbar
+                :timeout=8000
+                color="green"
+                dark
+                v-model="dashboardUpdated"
+                top
+            >
+                New results have arrived and we have updated your dashboard <v-icon>mdi-check-circle</v-icon>
+
+            </v-snackbar>
         </v-card>
 
 
@@ -130,7 +142,9 @@
                 candidate:null,
                 votes:[],
                 total:0,
-                constituencies:[]
+                constituencies:[],
+                stealth:false,
+                dashboardUpdated:false
 
             }
         },
@@ -171,13 +185,21 @@
                 let chartOptions= {
                     chart: {
                         type: 'bar',
-                        height: 'auto',
-                        stacked: true
+                        stacked: true,
+                        dropShadow: {
+                            enabled: true,
+                            top: 2,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.15
+                        }
 
                     },
                     plotOptions: {
                         bar: {
                             horizontal: true,
+                            endingShape: 'rounded',
+                            barHeight: '90%'
                         }
                     },
 
@@ -192,7 +214,7 @@
                     },
                     stroke: {
                         width: 2,
-                        colors: ["#fff"]
+                        colors: ["transparent"]
                     },
 
                     xaxis: {
@@ -240,24 +262,43 @@
                 });
             },
             get_candidate_results(){
-                this.progress = true;
+                this.progress = !this.stealth;
                 axios.get('/api/presscandidateresult/'+this.$route.params.id)
                     .then(res=>{
+                        this.total = 0;
+                        this.votes=[];
+                        this.polling_stations =[];
                         this.candidate = res.data.candidate;
                         this.constituencies = res.data.constituencies;
                         this.set_data(res.data.constituencies);
-                        this.progress=false
+                        this.progress=false;
+                        this.dashboardUpdated = this.stealth;
 
                     })
                     .catch(error=>{
 
                     })
 
+            },
+            listenForResults(){
+
+
+                window.Echo.channel('resultsPublished')
+                    .listen('parliamentaryResultsPublished', (e) => {
+                        if(e.message.type==='President' && e.message.candidate_id === this.$route.params.id){
+
+                            this.stealth = true;
+                            this.get_candidate_results();
+                        }
+                    });
+
+
             }
 
         },
         mounted() {
             this.get_candidate_results();
+            this.listenForResults();
 
 
         }

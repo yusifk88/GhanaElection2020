@@ -32,5 +32,7 @@ Route::post('constituency/save','HomeController@saveconstituency')->name('saveco
 Route::post('pollingstation/save','HomeController@savepollingstation')->name('savepollingstation');
 Route::get('user/create','HomeController@createuser')->name('createuser');
 Route::post('user/save','HomeController@saveuser')->name('saveuser');
+Route::get('paliarmentarycandidate/create','HomeController@createpaliarmentarycandidate')->name('createpaliarmentarycandidate');
+Route::post('paliarmentarycandidate/save','HomeController@saveparliamentarycandidate')->name('saveparliamentarycandidate');
 
 Route::get('/home', 'HomeController@index')->name('home');

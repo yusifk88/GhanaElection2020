@@ -1,18 +1,19 @@
 <template>
 
     <v-card flat>
-        <v-card-title>
-            <v-btn dark fab color="blue" to="/">
-                <v-icon>mdi-arrow-left</v-icon>
 
-            </v-btn>
-        </v-card-title>
         <v-skeleton-loader v-if="progress" type="card"></v-skeleton-loader>
 
         <v-card-text v-else>
 
             <v-row>
-                <v-col cols="12" sm="12" class="text-center">
+                <v-col cols="12" sm="2">
+                    <v-btn dark fab color="blue" to="/">
+                        <v-icon>mdi-arrow-left</v-icon>
+
+                    </v-btn>
+                </v-col>
+                <v-col cols="12" sm="10" class="text-center">
                     <h2 class="font-weight-light">CANDIDATE SUMMARY</h2>
                 </v-col>
 
@@ -102,7 +103,7 @@
                             <h2 class="font-weight-bold">{{sum_votes(polling_stations)}}</h2>
                             <small>Total Votes</small>
                         </center>
-                        <apexchart type="bar" height="350" :options="make_options(polling_stations)" :series="makeSeries(polling_stations)"></apexchart>
+                        <apexchart type="bar" height="3500" :options="make_options(polling_stations)" :series="makeSeries(polling_stations)"></apexchart>
 
 
                     </v-card>
@@ -113,6 +114,18 @@
 
 
         </v-card-text>
+
+
+        <v-snackbar
+            :timeout=8000
+            color="green"
+            dark
+            v-model="dashboardUpdated"
+            top
+        >
+            New results have arrived and we have updated your dashboard <v-icon>mdi-check-circle</v-icon>
+
+        </v-snackbar>
     </v-card>
 
 
@@ -125,10 +138,13 @@
         data(){
             return{
                 progress:true,
+                stealth:false,
                 candidate:null,
                 votes:[],
                 total:0,
-                polling_stations:[]
+                polling_stations:[],
+                dashboardUpdated:false
+
 
             }
         },
@@ -165,19 +181,11 @@
                     d.push(station.name);
                 });
 
+
                 let chartOptions= {
                     chart: {
                         type: 'bar',
-                        height: 'auto',
-                        stacked: true
-
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: true,
-                        }
-                    },
-                    track: {
+                        stacked: true,
                         dropShadow: {
                             enabled: true,
                             top: 2,
@@ -185,14 +193,24 @@
                             blur: 4,
                             opacity: 0.15
                         }
+
                     },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                            endingShape: 'rounded',
+                            barHeight: '90%'
+                        }
+                    },
+
                     stroke: {
                         width: 2,
-                        colors: ["#fff"]
+                        colors: ["transparent"]
                     },
                     tooltip: {
                         shared: false,
                         x: {
+
                             formatter: function (val) {
                                 return val
                             }
@@ -201,9 +219,13 @@
                             formatter: function (val) {
                                 return Math.abs(val);
                             }
+
                         }
                     },
                     xaxis: {
+                        style:{
+                            fontSize: '9px'
+                        },
                         categories: d,
                         formatter: function (val) {
                             return Math.abs(val);
@@ -246,25 +268,45 @@
 
             },
             get_candidate_results(){
-                this.progress = true;
+                this.progress = !this.stealth;
                 axios.get('/api/parlcandidateresult/'+this.$route.params.id)
                     .then(res=>{
+                        this.total = 0;
+                        this.votes=[];
+                        this.polling_stations =[];
                         this.candidate = res.data.candidate;
                         this.polling_stations = res.data.polling_stations;
+
                         this.set_data(res.data.polling_stations);
                         this.progress=false
+                        this.dashboardUpdated = this.stealth;
 
                     })
                     .catch(error=>{
 
                     })
 
+            },
+            listenForResults(){
+
+
+                window.Echo.channel('resultsPublished')
+                    .listen('parliamentaryResultsPublished', (e) => {
+                        if(e.message.type==='MP' && e.message.candidate_id === this.$route.params.id){
+
+                            this.stealth = true;
+                            this.get_candidate_results();
+                        }
+                    });
+
+
             }
+
 
         },
         mounted() {
             this.get_candidate_results();
-
+        this.listenForResults();
 
         }
 

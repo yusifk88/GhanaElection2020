@@ -70,7 +70,7 @@ class PartiesController extends Controller
 
         foreach ($constiteuncies as $constiteuncy){
 
-            $polling_stations =  PollingStation::where('constituency_id',$constiteuncy->id)->get();
+            $polling_stations =  PollingStation::where('constituency_id',$constiteuncy->id)->orderBy('name','asc')->get();
 
             foreach ($polling_stations as $polling_station){
 
@@ -108,7 +108,7 @@ class PartiesController extends Controller
         $stations = [];
 
 
-            $polling_stations =  PollingStation::where('constituency_id',$constiteuncy->id)->get();
+            $polling_stations =  PollingStation::where('constituency_id',$constiteuncy->id)->orderBy('name','asc')->get();
 
             foreach ($polling_stations as $polling_station){
 

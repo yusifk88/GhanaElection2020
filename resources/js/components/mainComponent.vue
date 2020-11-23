@@ -2,15 +2,28 @@
     <div>
         <v-skeleton-loader type="card" v-if="progress"></v-skeleton-loader>
     <v-card flat v-else>
-        <div class="text-center justify-center">
-           Made with <code class="mr-2 ml-2">Code</code> by &nbsp;&nbsp; <a href="https://twitter.com/oryusif"> Yusif Katulie</a>
+        <v-row>
+            <v-col cols="12" sm="3">
+                Made with <code class="pr-2 pl-2">Code</code> by &nbsp;&nbsp; <a href="https://twitter.com/oryusif"> Yusif Katulie</a>
 
-        <v-switch
-            v-model="$vuetify.theme.isDark"
-            :label="$vuetify.theme.isDark ? 'Switch to light mode' : 'Switch to  Dark mode'"
+            </v-col>
+            <v-col cols="12" sm="2">
 
-        ></v-switch>
-        </div>
+                <v-switch
+                    v-model="$vuetify.theme.isDark"
+                    :label="$vuetify.theme.isDark ? 'Switch to light mode' : 'Switch to  Dark mode'"
+                    class="m-0"
+
+                ></v-switch>
+            </v-col>
+            <v-col cols="12" sm="7">
+                <v-alert outlined type="warning">
+                    <span class="font-weight-light"><strong>NOTE:</strong> The media house responsible for the votes
+                        published here is NOT calling this election but only projecting what is being reported on the grounds.
+                        You are advised to wait until the official results are declared.</span>
+                </v-alert>
+            </v-col>
+        </v-row>
 
         <v-tabs
             v-model="tab"

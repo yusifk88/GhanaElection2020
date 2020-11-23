@@ -43,6 +43,46 @@
         </div>
 
     </div>
+    <div class="row">
+        @foreach($constituencies as $constituency)
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Polling stations - {{$constituency->name}}
+                </div>
+                <div class="card-body">
+                    <?php
+                        $polling_stations = \App\PollingStation::where('constituency_id',$constituency->id)->get();
+                        $i=1;
+                        ?>
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>SN</th>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($polling_stations as $station)
+
+                                <tr>
+                                    <td>{{$i++}}</td>
+                                    <td>{{$station->name}}</td>
+                                </tr>
+                            @endforeach
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+        @endforeach
+
+    </div>
 
 
 @endsection

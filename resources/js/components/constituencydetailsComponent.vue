@@ -3,14 +3,21 @@
 
         <v-skeleton-loader v-if="progress" type="paragraph" style="with:100%"></v-skeleton-loader>
         <div v-else>
-        <h2 class="font-weight-light">TOTAL VALID VOTES CAST {{total}}</h2>
-        <h4 class="font-weight-light">Parliamentary Results</h4>
+            <center>
+
+                <h2 class="font-weight-light">TOTAL VALID VOTES CAST {{total}}</h2>
+                <h4 class="font-weight-light">Parliamentary Results</h4>
+            </center>
+
 
         <apexchart  type="bar" :height="$vuetify.breakpoint.mobile ? '250' : '150'" :options="chartOptions" :series="series"></apexchart>
+<center>
 
-        <h2 class="font-weight-light mt-4">
-            PARLIAMENTARY CANDIDATE BREAKDOWN
-        </h2>
+    <h2 class="font-weight-light mt-4">
+        PARLIAMENTARY CANDIDATE BREAKDOWN
+    </h2>
+
+</center>
         <v-row>
             <v-col
                 cols="12"
@@ -48,6 +55,18 @@
             </v-col>
         </v-row>
         </div>
+
+        <v-snackbar
+            :timeout=8000
+            color="green"
+            dark
+            v-model="dashboardUpdated"
+            top
+        >
+            New results have arrived and we have updated your dashboard <v-icon>mdi-check-circle</v-icon>
+
+        </v-snackbar>
+
     </div>
 
 </template>
@@ -61,18 +80,29 @@
                 political_parties:[],
                 total:0,
                 progress:true,
+                stealth:false,
+                dashboardUpdated:false,
                 series: [
                 ],
                 chartOptions: {
                     chart: {
                         type: 'bar',
-                        height: 350,
                         stacked: true,
-                        stackType: '100%'
+                        stackType: '100%',
+                        dropShadow: {
+                            enabled: true,
+                            top: 2,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.15
+                        }
+
                     },
                     plotOptions: {
                         bar: {
                             horizontal: true,
+
+
                         },
                     },
                     stroke: {
@@ -112,7 +142,6 @@
             make_opions (party) {
                 const chartOptions = {
                     chart: {
-                        height: '100%',
                         type: 'radialBar',
                     },
                     plotOptions: {
@@ -143,22 +172,19 @@
                                     fontSize: '22px',
                                     color: party.color,
                                     formatter: function (val) {
-                                        return val + "%";
+                                        if (isNaN(val)){
+                                            return "0%";
+                                        }else{
+                                            return Number(val) + "%";
+
+                                        }
                                     }
                                 }
                             }
                         }
                     },
                     fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: 'dark',
-                            shadeIntensity: 0,
-                            inverseColors: [party.color],
-                            gradientToColors: [party.color],
-                            gradientFromColors: [party.color],
-                            stops: [0]
-                        },
+                        colors:[party.color]
                     },
                     stroke: {
                         lineCap: "round",
@@ -187,13 +213,16 @@
 
             },
             get_parties(){
-                this.progress = true;
+                this.progress = !this.stealth;
                 axios.get('/api/partiesandprlresults/'+this.constituency_id)
                     .then(res=>{
                         this.progress=false;
+                        this.series=[];
+                        this.total = 0;
 
                         this.set_seriese(res.data);
                         this.political_parties = res.data;
+                        this.dashboardUpdated = this.stealth;
 
 
                     })
@@ -202,13 +231,25 @@
                     });
 
 
+            },
+            listenForResults(){
+
+                window.Echo.channel('resultsPublished')
+                    .listen('parliamentaryResultsPublished', (e) => {
+                        if(e.message.type==='MP' && e.message.constituency_id === this.constituency_id){
+
+                            this.stealth = true;
+                            this.get_parties();
+                        }
+                    });
+
+
             }
 
         },
         mounted(){
             this.get_parties();
-
-
+            this.listenForResults();
         }
     }
 </script>

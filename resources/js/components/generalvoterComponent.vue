@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-skeleton-loader v-if="progress" type="paragraph" style="with:100%"></v-skeleton-loader>
+        <v-skeleton-loader v-if="progress" type="table" style="with:100%"></v-skeleton-loader>
 
         <div id="chart" v-else class="text-center">
 
@@ -27,7 +27,7 @@
                                         type="radialBar"
                                         height="250"
                                         :options="make_opions(party)"
-                                        :series="[((Number(party.votes)/total)*100).toFixed(2)]"
+                                        :series="[((Number(party.votes)/Number(total))*100).toFixed(2)]"
                                     ></apexchart>
 
                                 </v-col>
@@ -51,6 +51,18 @@
 
 
     </div>
+
+
+        <v-snackbar
+            :timeout=8000
+            color="green"
+            dark
+            v-model="dashboardUpdated"
+            top
+        >
+            New results have arrived and we have updated your dashboard <v-icon>mdi-check-circle</v-icon>
+
+        </v-snackbar>
     </div>
 </template>
 
@@ -62,6 +74,8 @@
                 parties:[],
                 total:0,
                 progress:true,
+                stealth:false,
+                dashboardUpdated:false,
                 series: [
                 ],
                     chartOptions: {
@@ -69,7 +83,15 @@
                         type: 'bar',
                             height: 350,
                             stacked: true,
-                            stackType: '100%'
+                            stackType: '100%',
+                        dropShadow: {
+                            enabled: true,
+                            top: 2,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.15
+                        }
+
                     },
                     plotOptions: {
                         bar: {
@@ -99,8 +121,8 @@
                     },
                     legend: {
                         position: 'top',
-                            horizontalAlign: 'left',
-                            offsetX: 40
+                        horizontalAlign: 'left',
+                        offsetX: 40
                     }
 
 
@@ -112,7 +134,6 @@
              make_opions (party) {
                const chartOptions = {
                     chart: {
-                        height: '100%',
                             type: 'radialBar',
                     },
                     plotOptions: {
@@ -143,22 +164,19 @@
                                         fontSize: '22px',
                                         color: party.color,
                                         formatter: function (val) {
-                                        return val + "%";
+                                            if (isNaN(val)){
+                                                return "0%";
+                                            }else{
+                                                return Number(val) + "%";
+
+                                            }
                                     }
                                 }
                             }
                         }
                     },
                     fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: 'dark',
-                            shadeIntensity: 0,
-                            inverseColors: [party.color],
-                            gradientToColors: [party.color],
-                            gradientFromColors: [party.color],
-                            stops: [0]
-                        },
+                        colors:[party.color]
                     },
                     stroke: {
                         lineCap: "round",
@@ -187,13 +205,16 @@
 
             },
             get_parties(){
-                this.progress = true;
+                this.progress = !this.stealth;
                 axios.get('/api/partiesandpressresults')
                     .then(res=>{
+                        this.series=[];
+                        this.total=0;
 
                         this.set_seriese(res.data);
                         this.parties = res.data;
                         this.progress=false;
+                        this.dashboardUpdated = this.stealth;
 
 
                     })
@@ -202,11 +223,28 @@
                     });
 
 
+            },
+            listenForResults(){
+
+                window.Echo.channel('resultsPublished')
+                    .listen('parliamentaryResultsPublished', (e) => {
+                        if(e.message.type==='President'){
+
+                            this.stealth = true;
+                            this.get_parties();
+                        }
+                    });
+
+
             }
+
 
         },
         mounted() {
             this.get_parties();
+
+           this.listenForResults();
+
 
         }
 
