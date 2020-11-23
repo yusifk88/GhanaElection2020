@@ -123,6 +123,10 @@ class HomeController extends Controller
     }
 
     public function savempresults(Request $request){
+        if (Vote::where('type',$request->type)->where('candidate_id',$request->candidate_id)->where('polling_station_id',$request->polling_station_id)->exists()){
+            return redirect()->back()->with('error',"Results for this candidate at this polling station was entered");
+
+        }
 
         $candidate = $request->type==='MP' ? ParliamentryCandidate::find($request->candidate_id) : PresidentialCandidate::find($request->candidate_id);
 
