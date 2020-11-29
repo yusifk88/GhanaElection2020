@@ -18,6 +18,7 @@ import VueRouter from 'vue-router';
 import VueApexCharts from 'vue-apexcharts'
 import presidentialCandidateComponent from "./components/presidentialCandidateComponent";
 import parliamentaryCandidateCompoenet from "./components/parliamentaryCandidateCompoenet";
+import voterPatternComponent from "./components/voterPatternComponent";
 Vue.use(VueApexCharts);
 
 Vue.component('apexchart', VueApexCharts);
@@ -58,6 +59,10 @@ const routes = [
     {
         path:'/parliamentarycandidate/:id',
         component: parliamentaryCandidateCompoenet
+    },
+    {
+        path:'/votepattern',
+        component: voterPatternComponent
     }
 ];
 

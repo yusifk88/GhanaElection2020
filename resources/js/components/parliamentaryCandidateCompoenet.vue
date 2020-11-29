@@ -2,7 +2,7 @@
 
     <v-card flat>
 
-        <v-skeleton-loader v-if="progress" type="card"></v-skeleton-loader>
+        <v-skeleton-loader v-if="progress" type="table"></v-skeleton-loader>
 
         <v-card-text v-else>
 
@@ -90,19 +90,24 @@
             </v-row>
 
             <v-row>
-                <v-col cols="12" sm="12" class="mt-5 text-center">
-                    <h3 class="font-weight-light">CONSTITUENCY VOTES BREAKDWON</h3>
+
+
+                <v-col cols="12" sm="4">
+                    <apexchart type="pie" width="400" :options="pieoptions(candidate.party)" :series="[sum_votes(polling_stations),other_votes]"></apexchart>
+
+                </v-col>
+                <v-col cols="12" sm="8" class="mt-5">
+                    <h3 class="font-weight-light">CONSTITUENCY VOTES BREAKDOWN</h3>
+                        <h4>{{candidate.constituency.name}}</h4>
+
+                        <h2 class="font-weight-bold">Votes:{{sum_votes(polling_stations)}} </h2>
+                        <h2 class="font-weight-bold">other votes: {{Number(other_votes)}} </h2>
                 </v-col>
                 <v-col cols="12" sm="12">
                     <v-card flat>
 
 
-                        <center>
-                            <h4>{{candidate.constituency.name}}</h4>
 
-                            <h2 class="font-weight-bold">{{sum_votes(polling_stations)}}</h2>
-                            <small>Total Votes</small>
-                        </center>
                         <apexchart type="bar" height="3500" :options="make_options(polling_stations)" :series="makeSeries(polling_stations)"></apexchart>
 
 
@@ -140,15 +145,69 @@
                 progress:true,
                 stealth:false,
                 candidate:null,
+                other_votes:0,
                 votes:[],
+                party_color:'',
                 total:0,
                 polling_stations:[],
-                dashboardUpdated:false
+                dashboardUpdated:false,
+
 
 
             }
         },
         methods:{
+
+            pieoptions(party){
+               return  {
+                    chart: {
+                        type: 'pie',
+                        colors: [party.color,'darkgrey'],
+
+                    },
+                    labels: ['Voted For', 'Other Votes'],
+
+                   legend: {
+                       markers: {
+
+                           fillColors: [party.color,'darkgrey'],
+
+                       },
+                   },
+                     responsive: [{
+                        breakpoint: 480,
+                        options: {
+
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    colors: [party.color,'darkgrey'],
+                                    useSeriesColors: false
+                                },
+                            }
+                        }
+                    }],
+                dataLabels: {
+                    offset: 0,
+                    style: {
+                        colors: ['#fff'],
+                        fontSize: '20px',
+
+                    }
+                    },
+
+                  fill: {
+                    colors: [party.color,'darkgrey'],
+                },
+                   tooltip:{
+                       fillSeriesColor: true,
+
+                   }
+                };
+
+
+
+            },
             makeSeries(polling_stations){
 
                 let d = [];
@@ -157,6 +216,7 @@
                 polling_stations.forEach(station=>{
                     d.push(Number(station.votes));
                     b.push(Number(station.no_votes)/-1);
+
                 });
 
                 return [{
@@ -164,7 +224,7 @@
                     data: d,
                     color:this.candidate.party.color
                 },
-                    {   name:'Voted against',
+                    {   name:'Other Votes',
                         data: b,
                         color: "darkgrey"
 
@@ -256,12 +316,22 @@
                 return sum;
             },
 
+            sum_other_votes(stations){
+                let sum = 0;
+                stations.forEach(station=>{
+                    sum+=Number(station.votes);
+                });
+
+                return sum;
+            },
+
             set_data(stations){
 
                     stations.forEach(polling_station=>{
                         if(Number(polling_station.votes)>0){
                             this.votes.push(Number(polling_station.votes));
                             this.total+=Number(polling_station.votes);
+                            this.other_votes +=Number(polling_station.no_votes);
                         }
 
                     });
@@ -275,6 +345,8 @@
                         this.votes=[];
                         this.polling_stations =[];
                         this.candidate = res.data.candidate;
+
+                        this.party_color = this.candidate.party.color;
                         this.polling_stations = res.data.polling_stations;
 
                         this.set_data(res.data.polling_stations);

@@ -165,7 +165,7 @@
                     data: d,
                     color:this.candidate.party.color
                 },{
-                    name:'Voted Against',
+                    name:'Other Votes',
                     data:b,
                     color: "darkgrey"
 

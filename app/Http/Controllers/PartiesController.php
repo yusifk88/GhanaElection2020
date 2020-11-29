@@ -182,6 +182,75 @@ class PartiesController extends Controller
 
         return response()->json($parties);
 
+    }
+
+
+
+    public function constituencypatern(){
+        $data = [];
+        $constituencies = Constituency::all();
+        $party_results = [];
+
+        foreach ($constituencies as $constituency){
+            $parties = Party::all();
+
+                foreach ($parties as $party){
+                    $parl_candidate = ParliamentryCandidate::where('party_id',$party->id)->where('constituency_id',$constituency->id)->get()->first();
+                    $presidential_candidate = PresidentialCandidate::where('party_id',$party->id)->get()->first();
+
+                    $pres_votes = Vote::whereIn('polling_station_id',PollingStation::select('id')->where('constituency_id',$constituency->id))->where('candidate_id',$presidential_candidate->id)->where('type','President')->sum('votes');
+                    $parl_votes = $parl_candidate ?  Vote::whereIn('polling_station_id',PollingStation::select('id')->where('constituency_id',$constituency->id))->where('candidate_id',$parl_candidate->id)->where('type','MP')->sum('votes') : 0;
+
+                    $party->presidential_votes = $pres_votes;
+                    $party->parliamentary_votes = $parl_votes;
+
+                    array_push($party_results,$party);
+
+                }
+
+            $constituency->party_results = $parties;
+            array_push($data,$constituency);
+
+        }
+
+
+            return response()->json($data);
+
+
+    }
+
+    public function pollingstationpattern( $id){
+
+        $polling_stations = PollingStation::where('constituency_id',$id)->orderBy('name','asc')->get();
+
+        $data =[];
+        $results =[];
+
+            foreach ($polling_stations as $polling_station){
+
+                    $parties = Party::all();
+                    $constituency = Constituency::find($polling_station->constituency_id);
+
+                    foreach ($parties as $party){
+
+                        $parl_candidate = ParliamentryCandidate::where('party_id',$party->id)->where('constituency_id',$constituency->id)->get()->first();
+                        $presidential_candidate = PresidentialCandidate::where('party_id',$party->id)->get()->first();
+                        $pres_votes = Vote::where('polling_station_id',$polling_station->id)->where('candidate_id',$presidential_candidate->id)->where('type','President')->sum('votes');
+                        $parl_votes = $parl_candidate ?  Vote::where('polling_station_id',$polling_station->id)->where('candidate_id',$parl_candidate->id)->where('type','MP')->sum('votes') : 0;
+                        $party->presidential_votes = $pres_votes;
+                        $party->parliamentary_votes = $parl_votes;
+                        array_push($results,$party);
+
+                    }
+
+                    $polling_station->party_results = $parties;
+
+                    array_push($data,$polling_station);
+
+            }
+
+
+            return response()->json($data);
 
 
     }

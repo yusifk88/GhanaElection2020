@@ -18,8 +18,12 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
+
+
 Route::get('constituencies','ConstituenciesController@index');
 Route::get('partiesandpressresults','PartiesController@index');
 Route::get('partiesandprlresults/{constituency_id}','PartiesController@parlresults');
 Route::get('presscandidateresult/{id}','PartiesController@show');
 Route::get('parlcandidateresult/{id}','PartiesController@showparl');
+Route::get('votepatern','PartiesController@constituencypatern');
+Route::get('pollingstationpattern/{id}','PartiesController@pollingstationpattern');

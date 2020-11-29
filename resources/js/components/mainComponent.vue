@@ -15,6 +15,7 @@
                     class="m-0"
 
                 ></v-switch>
+                <v-btn color="green" to="/votepattern" block outlined rounded>Vote Pattern</v-btn>
             </v-col>
             <v-col cols="12" sm="7">
                 <v-alert outlined type="warning">
