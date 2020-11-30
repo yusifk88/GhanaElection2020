@@ -91,8 +91,7 @@
 
                                             $party = \App\Party::find($candidate->party_id);
                                             $votes = \App\Http\Controllers\HomeController::partypresvotes($candidate->id);
-
-                                            $percentage = $total_votes ? ($votes/$total_votes)*100 : 0;
+                                            $percentage = $total_votes > 0 ? ($votes/$total_votes)*100 : 0;
 
 
                                         ?>
