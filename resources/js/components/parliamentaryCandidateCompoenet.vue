@@ -100,8 +100,8 @@
                     <h3 class="font-weight-light">CONSTITUENCY VOTES BREAKDOWN</h3>
                         <h4>{{candidate.constituency.name}}</h4>
 
-                        <h2 class="font-weight-bold">Votes:{{sum_votes(polling_stations)}} </h2>
-                        <h2 class="font-weight-bold">other votes: {{Number(other_votes)}} </h2>
+                        <h2 class="font-weight-bold">Votes:{{sum_votes(polling_stations) | toMoney}} </h2>
+                        <h2 class="font-weight-bold">other votes: {{Number(other_votes) | toMoney}} </h2>
                 </v-col>
                 <v-col cols="12" sm="12">
                     <v-card flat>
@@ -328,11 +328,9 @@
             set_data(stations){
 
                     stations.forEach(polling_station=>{
-                        if(Number(polling_station.votes)>0){
                             this.votes.push(Number(polling_station.votes));
                             this.total+=Number(polling_station.votes);
                             this.other_votes +=Number(polling_station.no_votes);
-                        }
 
                     });
 

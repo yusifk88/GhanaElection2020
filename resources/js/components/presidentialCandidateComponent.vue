@@ -57,7 +57,7 @@
                             </v-icon>
                             <v-row align="start">
                                 <div class="caption white--text text-uppercase">
-                                    {{total}}
+                                    {{total | toMoney}}
                                 </div>
                                 <div>
                           <span
@@ -101,7 +101,7 @@
                             </v-card-title>
 
                                 <center>
-                                    <h2 class="font-weight-bold">{{sum_votes(constituency.polling_stations)}}</h2>
+                                    <h2 class="font-weight-bold">{{sum_votes(constituency.polling_stations) | toMoney}}</h2>
                                     <small>Total Votes</small>
                                 </center>
                                 <apexchart type="bar" height="3500" :options="make_options(constituency.polling_stations)" :series="makeSeries(constituency.polling_stations)"></apexchart>

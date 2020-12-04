@@ -111,11 +111,13 @@ Vue.filter("short_number", (d) => {
     return output;
 });
 
+
 Vue.filter("toMoney", (d) => {
     if (d) {
-        return d
+        return Number(d)
+            .toFixed(1)
             .replace(/\d(?=(\d{3})+\.)/g, "$&,");
     } else {
-        return "0";
+        return "0.00";
     }
 });
