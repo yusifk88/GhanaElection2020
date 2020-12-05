@@ -39,6 +39,6 @@ class User extends Authenticatable
 
 
     public static function isAdmin(){
-        return auth()->user()->email==='electionhouse@radfordfmonline.net';
+        return auth()->user()->email==='polls@mtv.com';
     }
 }

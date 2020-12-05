@@ -30,7 +30,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 @if(auth()->check())
-                @if(auth()->user()->email==='electionhouse@radfordfmonline.net')
+                @if(auth()->user()->email==='polls@mtv.com')
 
                         <ul class="navbar-nav">
 
