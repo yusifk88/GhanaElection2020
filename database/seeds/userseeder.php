@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class userseeder extends Seeder
 {
@@ -14,7 +15,7 @@ class userseeder extends Seeder
         \App\User::create([
             'name'=>'MTv',
             'email'=>'polls@mtv.com',
-            'password' => bcrypt('_MTv/@election2020')
+            'password' => Hash::make('_MTv/@election2020')
         ]);
 
 

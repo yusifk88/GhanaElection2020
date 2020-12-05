@@ -13,7 +13,7 @@ class PresidentialCandidateSeed extends Seeder
     {
         $candidate = new \App\PresidentialCandidate([
             'name'=>'Nana Addo Dankwa Akufo-Addo',
-            'photo'=>'/img/pcandidate/Nana-Adda.png',
+            'photo'=>'/img/pcandidate/Nana-Addo.png',
             'party_id'=>1
         ]);
         $candidate->save();
