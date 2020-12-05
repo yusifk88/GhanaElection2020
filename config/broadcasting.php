@@ -32,9 +32,9 @@ return [
 
         'pusher' => [
             'driver' => 'pusher',
-            'key' => 'cdc3af9cb48e48bfad91',
-            'secret' => 'a76d2829f8a7aeadb14c',
-            'app_id' => '1111313',
+            'key' => '5927f689f16021e16df8',
+            'secret' => '4f9e1a0b014ccc9b45ae',
+            'app_id' => '1118441',
             'options' => [
                 'cluster' => 'eu',
                 'useTLS' => true,
