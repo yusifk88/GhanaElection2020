@@ -53,7 +53,7 @@ class PresidentialCandidateSeed extends Seeder
 
         $candidate = new \App\PresidentialCandidate([
             'name'=>'Henry Herbert Lartey',
-              'photo'=>'/img/pcandidate/Henry-Herbert-Lartey.jpg',
+              'photo'=>'/img/pcandidate/Henry-Herbert-Lartey.jpeg',
               'party_id'=>6
         ]);
         $candidate->save();
