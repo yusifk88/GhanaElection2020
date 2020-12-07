@@ -14,8 +14,8 @@ class userSeeder extends Seeder
 
         \App\User::where('id',1)->delete();
         \App\User::create([
-            'name'=>'MTv',
-            'email'=>'polls@mtv.com',
+            'name'=>'RADFORDFM',
+            'email'=>'polls@radford.com',
             'password' => Hash::make('radford_electionhouse/@2020')
         ]);
 
