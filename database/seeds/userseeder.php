@@ -15,7 +15,7 @@ class userseeder extends Seeder
         \App\User::create([
             'name'=>'MTv',
             'email'=>'polls@mtv.com',
-            'password' => Hash::make('_MTv/@election2020')
+            'password' => Hash::make('radford_electionhouse/@2020')
         ]);
 
 

@@ -36,3 +36,5 @@ Route::get('paliarmentarycandidate/create','HomeController@createpaliarmentaryca
 Route::post('paliarmentarycandidate/save','HomeController@saveparliamentarycandidate')->name('saveparliamentarycandidate');
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+
