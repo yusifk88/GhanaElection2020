@@ -151,7 +151,8 @@
 
                                 $party = \App\Party::find($candidate->party_id);
                                     $votes = \App\Http\Controllers\HomeController::partyparlvotes($candidate->id);
-                                $percentage = ($votes/$total_votes)*100;
+
+                                $percentage = $total_votes >0 ?  ($votes/$total_votes)*100 : 0;
 
                                 ?>
 
